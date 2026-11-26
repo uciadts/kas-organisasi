@@ -49,7 +49,7 @@ Jalankan `docker compose down`. Data tetap tersimpan di volume. Jangan menambah 
 - `compose.yaml`: definisi service web dan db
 - `init.sql`: skema tabel dan data awal (hanya dijalankan saat volume masih kosong)
 - `.env.example`: contoh variabel lingkungan (password diisi di `.env`, tidak diunggah)
-- `docs/`: diagram arsitektur, petunjuk demo, laporan pengujian, dan folder `bukti/` berisi tangkapan layar
+- `docs/`: diagram arsitektur, petunjuk demo, laporan pengujian, dan folder `bukti/` serta `bukti-vm/` berisi tangkapan layar
 
 ## Pengujian
 
@@ -61,7 +61,7 @@ Jalankan `docker compose down`. Data tetap tersimpan di volume. Jangan menambah 
 | 4 | `docker compose down` lalu `docker compose up -d` | Data transaksi masih ada |
 | 5 | Kirim form dengan nominal atau keterangan kosong | Ditolak dengan pesan kesalahan |
 
-Hasil pengujian beserta tangkapan layar ada di [docs/pengujian.md](docs/pengujian.md).
+Hasil pengujian beserta tangkapan layar, baik di Docker Desktop maupun di VM Ubuntu Server, ada di [docs/pengujian.md](docs/pengujian.md).
 
 ## Catatan
 
