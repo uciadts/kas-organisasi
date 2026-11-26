@@ -1,21 +1,23 @@
 # Laporan Pengujian
 
-| Keterangan | Isi |
-|---|---|
-| Tanggal | 26 November 2026 |
-| Lingkungan | Docker Desktop di Windows |
-| Stack | `web` (php:8.3-apache) dan `db` (mysql:8.4) |
-| Alamat | `http://localhost:8080` |
+Stack yang sama (`web` berbasis php:8.3-apache dan `db` berbasis mysql:8.4) diuji di dua lingkungan.
+
+| Lingkungan | Tanggal | Alamat | Bukti |
+|---|---|---|---|
+| Docker Desktop di Windows | 26 November 2026 | `http://localhost:8080` | [bukti/](bukti/) |
+| VM Ubuntu Server 24.04 LTS (VirtualBox, jaringan bridged) dengan Docker Engine dan Compose v5.8.0 | 27 November 2026 | `http://192.168.1.16:8080` | [bukti-vm/](bukti-vm/) |
 
 ## Ringkasan
 
-| No | Skenario | Hasil |
-|---|---|---|
-| 1 | Akses web | Lulus |
-| 2 | Tambah transaksi | Lulus |
-| 3 | Hitung saldo | Lulus |
-| 4 | Persistensi data | Lulus |
-| 5 | Validasi input | Lulus |
+| No | Skenario | Docker Desktop | VM Ubuntu |
+|---|---|---|---|
+| 1 | Akses web | Lulus | Lulus |
+| 2 | Tambah transaksi | Lulus | Lulus |
+| 3 | Hitung saldo | Lulus | Lulus |
+| 4 | Persistensi data | Lulus | Lulus |
+| 5 | Validasi input | Lulus | Tidak diuji ulang (kode aplikasi sama) |
+
+# Bagian A. Docker Desktop (Windows)
 
 ## Kondisi awal
 
@@ -64,3 +66,45 @@ Stack dijalankan dengan `docker compose up -d`. `web` berstatus Up dan `db` bers
 - **Hasil:** muncul pesan "Nominal harus berupa angka lebih dari 0." Data tidak bertambah (tetap 7 transaksi dan saldo Rp 495.000).
 
 ![Validasi](bukti/05-validasi.png)
+
+# Bagian B. VM Ubuntu Server
+
+Proyek diambil dari repositori dengan `git clone`, file `.env` dibuat di VM, lalu stack dijalankan dengan `docker compose up -d --build`. Database di VM berdiri sendiri, jadi datanya berbeda dari Docker Desktop (mulai dari 2 transaksi awal pada `init.sql`).
+
+## Kondisi awal: host siap
+
+- **Langkah:** jalankan `docker compose version` dan `docker compose ps` di VM.
+- **Diharapkan:** Compose terpasang, `web` berstatus Up dan `db` berstatus healthy.
+- **Hasil:** Docker Compose versi v5.8.0. `web` Up dan `db` Up (healthy).
+
+![Compose di VM](bukti-vm/vm-01-compose-ps.png)
+
+## Skenario 1: Akses web
+
+- **Langkah:** dari browser di laptop (host VirtualBox), buka `http://192.168.1.16:8080`.
+- **Diharapkan:** halaman aplikasi tampil.
+- **Hasil:** halaman tampil dengan 2 transaksi awal. Saldo Rp 425.000 (pemasukan Rp 500.000 dikurangi pengeluaran Rp 75.000).
+
+![Halaman di VM](bukti-vm/vm-02-halaman-ip.png)
+
+## Skenario 2 dan 3: Tambah transaksi dan hitung saldo
+
+- **Langkah:** tambah pemasukan `Iuran November` Rp 100.000 dan pengeluaran `Beli spanduk` Rp 30.000.
+- **Diharapkan:** kedua transaksi muncul di daftar dan saldo sama dengan total pemasukan dikurangi total pengeluaran.
+- **Hasil:** 4 transaksi. Total pemasukan Rp 600.000 dan total pengeluaran Rp 105.000, sehingga saldo Rp 495.000 (600.000 − 105.000 = 495.000).
+
+![Saldo di VM](bukti-vm/vm-03-saldo.png)
+
+## Skenario 4: Persistensi data
+
+- **Langkah:** jalankan `docker compose down`, lalu `docker compose up -d`, kemudian muat ulang halaman.
+- **Diharapkan:** data transaksi masih ada.
+- **Hasil:** `down` menghapus container `web` dan `db` beserta jaringannya. Setelah `up -d`, kedua container berjalan lagi dan halaman menampilkan 4 transaksi dengan saldo Rp 495.000, sama seperti sebelumnya. Data tersimpan di volume `db_data`.
+
+Tangkapan layar `down` diambil saat `up -d` masih menunggu database siap, karena VM sedang lambat memulai MySQL.
+
+![down di VM](bukti-vm/vm-04a-down.png)
+
+![up di VM](bukti-vm/vm-04b-up.png)
+
+![Data tetap ada di VM](bukti-vm/vm-05-data-tetap.png)

@@ -43,4 +43,4 @@ Versi gambar untuk laporan atau slide: [arsitektur.png](arsitektur.png).
 
 ## Catatan host
 
-Pengujian saat ini dijalankan di Docker Desktop (Windows). File Compose yang sama dipakai untuk deployment di VM Ubuntu Server dengan Docker Engine dan Compose.
+Stack diuji di Docker Desktop (Windows) dan di VM Ubuntu Server 24.04 LTS (VirtualBox) dengan Docker Engine dan Compose. File Compose yang sama dipakai di kedua host. Hasilnya ada di [pengujian.md](pengujian.md).
